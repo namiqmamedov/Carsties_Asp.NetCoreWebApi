@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http.Features;
 
 namespace AuctionService.Entities
 {
