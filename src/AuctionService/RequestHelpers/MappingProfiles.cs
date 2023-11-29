@@ -1,7 +1,7 @@
 using AuctionService.DTOs;
 using AuctionService.Entities;
 using AutoMapper;
-using Constracts;
+using Contracts;
 
 namespace AuctionService.RequestHelpers
 {

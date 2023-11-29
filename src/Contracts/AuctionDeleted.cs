@@ -1,4 +1,4 @@
-namespace Constracts
+namespace Contracts
 {
     public class AuctionDeleted
     {

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Constracts;
+using Contracts;
 using MassTransit;
 using MongoDB.Entities;
 using SearchService.Models;
