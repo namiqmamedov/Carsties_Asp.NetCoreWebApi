@@ -1,4 +1,5 @@
 using AuctionService.Data;
+using AuctionService.IntegrationTests.Util;
 using MassTransit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -6,12 +7,13 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
+using WebMotions.Fake.Authentication.JwtBearer;
 
 namespace AuctionService.IntegrationTests.Fixtures
 {
     public class CustomWebAppFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
-        private PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder().Build();
+        private readonly PostgreSqlContainer _postgreSqlContainer = new PostgreSqlBuilder().Build();
         public async Task InitializeAsync()
         {
             await _postgreSqlContainer.StartAsync();
@@ -21,10 +23,7 @@ namespace AuctionService.IntegrationTests.Fixtures
         {
             builder.ConfigureTestServices(services => 
             {
-                var descriptor = services.SingleOrDefault(d => 
-                    d.ServiceType == typeof(DbContextOptions<AuctionDbContext>));
-
-                if (descriptor != null) services.Remove(descriptor);
+                services.RemoveDbContext<AuctionDbContext>();
 
                 services.AddDbContext<AuctionDbContext>(options => 
                 {
@@ -33,13 +32,13 @@ namespace AuctionService.IntegrationTests.Fixtures
 
                 services.AddMassTransitTestHarness();
 
-                var sp = services.BuildServiceProvider();
-                
-                using var scope = sp.CreateScope();
-                var scopedServices = scope.ServiceProvider;
-                var db = scopedServices.GetRequiredService<AuctionDbContext>();
+                services.EnsureCreated<AuctionDbContext>();
 
-                db.Database.Migrate();
+                services.AddAuthentication(FakeJwtBearerDefaults.AuthenticationScheme)
+                    .AddFakeJwtBearer(opt =>  
+                    {
+                        opt.BearerValueType = FakeJwtBearerBearerValueType.Jwt;
+                    });
             });
         }
 
